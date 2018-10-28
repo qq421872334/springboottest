@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>自动化排班</title>
+<link href="/js/fullcalendar.css" rel="stylesheet">
+<link href='/js/fullcalendar.print.min.css' rel='stylesheet' media='print' />
+<!-- <link href="/js/fullcalendar.min.css" rel="stylesheet"> -->
+<!-- <script type="text/javascript" src="js/gcal.js"></script> -->
+<script src="/js/jquery.min.js" type="text/javascript"></script>
+<script src="/js/jquery-ui.min.js" type="text/javascript"></script>
+<script src="/js/moment.min.js" type="text/javascript"></script>
+<!-- <script src="/js/fullcalendar.min.js" type="text/javascript"></script> -->
+<script src="/js/fullcalendar.js" type="text/javascript"></script>
+<script src='/js/gcal.min.js'></script>
+</head>
+<body>
+	<div id='calendar' style="margin-top:10px;margin-left:5px">
+	</div> 
+</body>
+
+<script type="text/javascript">
+
+jQuery('#calendar').fullCalendar({
+    header: {
+        left: 'month,agendaWeek,agendaDay',
+        center: 'title',
+        right: 'today, prev, next'
+    },
+    monthNames: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+    monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+    dayNames: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+    dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+    today: ["今天"],
+    firstDay: 1,
+    buttonText: {
+        prev: '<',//'&laquo;',
+        next: '>',//'&raquo;',
+        prevYear: '&nbsp;&lt;&lt;&nbsp;',
+        nextYear: '&nbsp;&gt;&gt;&nbsp;',
+        today: '今天',
+        month: '月',
+        week: '周',
+        day: '日'
+    },
+    /* displayEventTime: false,
+    
+    googleCalendarApiKey: 'AIzaSyDcnW6WejpTOCffshGDDb4neIrXVUA1EAE',
+
+    // US Holidays
+    events: 'en.usa#holiday@group.v.calendar.google.com',
+
+    eventClick: function(event) {
+      // opens events in a popup window
+      window.open(event.url, 'gcalevent', 'width=700,height=600');
+      return false;
+    },
+
+    loading: function(bool) {
+      $('#loading').toggle(bool);
+    }, */
+    
+    viewDisplay: function (view) {
+    	console.log("viewDisplay:"+view);
+        //动态把数据查出，按照月份动态查询
+        var viewStart = $.fullCalendar.formatDate(view.start, "yyyy-MM-dd HH:mm:ss");
+        var viewEnd = $.fullCalendar.formatDate(view.end, "yyyy-MM-dd HH:mm:ss");
+        $("#calendar").fullCalendar('removeEvents');
+      //  通过post 请求一般处理程序来返回需要展现的信息(start与end为需要传递的参数，在本文中没有用到可以忽略)
+        $.post("/DateHandle/ViewData", { start: viewStart, end: viewEnd }, function (data) {
+
+            var resultCollection = jQuery.parseJSON(data);
+            $.each(resultCollection, function (index, term) {
+            	console.log(index);
+            	console.log(term);
+                $("#calendar").fullCalendar('renderEvent', term, true);
+            });
+
+        }); //把从后台取出的数据进行封装以后在页面上以fullCalendar的方式进行显示
+    },
+
+   
+    dayClick: function (date, allDay, jsEvent, view) {
+    	console.log("date:"+date);
+    	console.log("allDay:"+allDay);
+    	console.log("jsEvent:"+jsEvent);
+    	console.log("jsEvent:"+view);
+    },
+    loading: function (bool) {
+    	console.log("loading:"+bool);
+        if (bool) $('#loading').show();
+        else $('#loading').hide();
+    },
+    
+
+    //#region 数据绑定上去后添加相应信息在页面上(一开始加载数据时运行)
+    /* eventAfterRender: function (event, element, view) {
+		console.log(event);
+		console.log(element);
+		console.log(view);
+        var fstart = $.fullCalendar.formatDate(event.start, "HH:mm");
+        var fend = $.fullCalendar.formatDate(event.end, "HH:mm");
+        var confbg = '<span class="fc-event-bg"></span>';
+        if (view.name == "month") {//按月份                
+            var evtcontent = '<div class="fc-event-vert"><a>';
+            evtcontent = evtcontent + confbg;
+            //evtcontent = evtcontent + '<span class="fc-event-titlebg">' + fstart + " - " + fend  + event.fullname + '</span>';   
+            evtcontent = evtcontent + '<span class="fc-event-titlebg">' + event.title + '</span>';
+            element.html(evtcontent);
+        } else if (view.name == "agendaWeek") {//按周
+
+            var evtcontent = '<a>';
+            evtcontent = evtcontent + confbg;
+            evtcontent = evtcontent + '<span class="fc-event-time">' + fstart + "-" + fend + '</span>';
+            evtcontent = evtcontent + '<span>' + event.fullname + '</span>';
+            element.html(evtcontent);
+        } else if (view.name == "agendaDay") {//按日
+
+            var evtcontent = '<a>';
+            evtcontent = evtcontent + confbg;
+            evtcontent = evtcontent + '<span class="fc-event-time">' + fstart + " - " + fend + '</span>';
+            element.html(evtcontent);
+        }
+    },  */
+    //#endregion
+
+    //#region 鼠标放上去显示信息
+    eventMouseover: function (calEvent, jsEvent, view) {
+        //var fstart = $.fullCalendar.formatDate(calEvent.start, "yyyy/MM/dd HH:mm");
+        //var fend = $.fullCalendar.formatDate(calEvent.end, "yyyy/MM/dd HH:mm");
+        //$(this).attr('title', fstart + " - " + fend + " " + calEvent.fullname);
+       // 鼠标悬浮到title的时候可以设置展现哪些信息
+        $(this).attr('title', calEvent.fullname);
+        $(this).css('font-weight', 'normal');
+        //            $(this).tooltip({
+        //                effect: 'toggle',
+        //                cancelDefault: true
+        //            });
+    },
+    eventClick: function (event) {             
+      console.log(event);
+    },
+    /* events: [{
+    	id:'a',
+    	title: 'wwwww',
+        start: '2018-10-07',
+        end: '2018-10-10',
+        editable:true,
+        url:'http://www.baidu.com'
+        }] */
+    events:function(start,end,timezone, callback) {
+        var date = this.getDate().format('YYYY-MM');
+    	$.ajax({
+    		url:"/paibantest",
+    		type:"post",
+    		dataType: 'json',
+    		data:{},
+    		success: function(json) { // 获取当前月的数据
+    			console.log(start);
+    			console.log(end);
+                var events = [];
+               // if (json.status == '1') {
+                    $.each(json,function(i,c) {
+                    	console.log("i:"+i);
+                    	console.log("c:"+c);
+                    	events.push({
+                            title: c.title,
+                            start: c.start , // will be parsed
+                            end:c.end,
+                            color: '#FFEBAC'
+                        });
+                        /* if (c.is_special == '1') {
+                            events.push({
+                                title: '￥'+c.price+','+c.stock+'套',
+                                start: c.date , // will be parsed
+                                color: '#FFEBAC'
+                            });
+                        } else {
+                            events.push({
+                                title: '￥'+c.price+','+c.stock+'套',
+                                start: c.date , // will be parsed
+                                color: '#BEEABE'
+                            });
+                        } */
+                        
+                    });
+                    callback(events);
+                //}
+            }
+    	
+    	
+   		});
+    }
+    ,
+    //#endregion
+
+    editable: true,
+    droppable: true, // this allows things to be dropped onto the calendar !!!
+    drop: function (date, allDay) { // this function is called when something is dropped
+
+        // retrieve the dropped element's stored Event Object
+        var originalEventObject = jQuery(this).data('eventObject');
+
+        // we need to copy it, so that multiple events don't have a reference to the same object
+        var copiedEventObject = jQuery.extend({}, originalEventObject);
+
+        // assign it the date that was reported
+        copiedEventObject.start = date;
+        copiedEventObject.allDay = allDay;
+
+        // render the event on the calendar
+        // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
+        jQuery('#calendar').fullCalendar('renderEvent', copiedEventObject, true);
+
+        // is the "remove after drop" checkbox checked?
+
+        jQuery(this).remove();
+
+    }
+});
+
+</script>
+</html>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+  <context id="context1">
+    <jdbcConnection connectionURL="jdbc:oracle:thin:@localhost:1521:gzoms" driverClass="oracle.jdbc.driver.OracleDriver" password="zx123123" userId="system" />
+    <javaModelGenerator targetPackage="com.app.entity" targetProject="demo\src\main\java" />
+    <sqlMapGenerator targetPackage="com.app.mapper" targetProject="demo\src\main\java" />
+    <javaClientGenerator targetPackage="com.app.mapper" targetProject="demo\src\main\java" type="XMLMAPPER" />
+    <table schema="protect" tableName="t_remoteinfomanage">
+     <!--  <columnOverride column="???" property="???" /> -->
+    </table>
+  </context>
+</generatorConfiguration>
